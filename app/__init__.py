@@ -1,0 +1,1 @@
+# SlotWise application package init
