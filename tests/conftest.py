@@ -4,10 +4,9 @@ import uuid as _uuid
 import pytest
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.pool import NullPool
 from dotenv import load_dotenv
 
-load_dotenv('.env_3698610c-0a42-47f4-8734-fc3a8dd320bd', override=True)
+load_dotenv('.env_a6b2546857a5b043', override=True)
 
 from app.main import app
 from app.database import Base, get_db
@@ -17,20 +16,19 @@ from app.models import (
 )
 from app.core.security import get_password_hash
 
-MAIN_DB_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://myuser:mypassword@localhost:5432/gen_6ea131cada")
+MAIN_DB_URL = os.getenv("DATABASE_URL", "")
 _parts = MAIN_DB_URL.rsplit("/", 1)
 TEST_DB_URL = (_parts[0] + "/" + _parts[1] + "_test") if len(_parts) == 2 else MAIN_DB_URL
 
 
 @pytest.fixture(scope="session")
 async def db_engine():
-    # Create schema in main DB
+    from sqlalchemy.pool import NullPool
     main_engine = create_async_engine(MAIN_DB_URL, poolclass=NullPool)
     async with main_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     await main_engine.dispose()
 
-    # Test DB engine
     engine = create_async_engine(TEST_DB_URL, poolclass=NullPool)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -38,35 +36,15 @@ async def db_engine():
     await engine.dispose()
 
 
-@pytest.fixture(scope="session")
-async def session_factory(db_engine):
-    """Session factory for creating per-test sessions."""
-    return async_sessionmaker(db_engine, class_=AsyncSession, expire_on_commit=False)
-
-
-@pytest.fixture(scope="session")
-async def db_session(session_factory):
-    """Session-scoped DB session for creating shared fixtures."""
-    async with session_factory() as session:
+@pytest.fixture
+async def db_session(db_engine):
+    factory = async_sessionmaker(db_engine, class_=AsyncSession, expire_on_commit=False)
+    async with factory() as session:
         yield session
-        try:
-            await session.rollback()
-        except Exception:
-            pass
+        await session.rollback()
 
 
 @pytest.fixture
-async def test_db_session(session_factory):
-    """Function-scoped DB session for individual tests."""
-    async with session_factory() as session:
-        yield session
-        try:
-            await session.rollback()
-        except Exception:
-            pass
-
-
-@pytest.fixture(scope="session")
 async def client(db_session):
     async def override_get_db():
         yield db_session
@@ -79,7 +57,7 @@ async def client(db_session):
 
 # ── Shared test data fixtures (unique emails per test to avoid conflicts) ─────
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def manager_user(db_session: AsyncSession) -> User:
     unique = _uuid.uuid4().hex[:8]
     user = User(
@@ -95,7 +73,7 @@ async def manager_user(db_session: AsyncSession) -> User:
     return user
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def customer_user(db_session: AsyncSession) -> User:
     unique = _uuid.uuid4().hex[:8]
     user = User(
@@ -111,7 +89,7 @@ async def customer_user(db_session: AsyncSession) -> User:
     return user
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def staff_user(db_session: AsyncSession) -> User:
     unique = _uuid.uuid4().hex[:8]
     user = User(
@@ -127,7 +105,7 @@ async def staff_user(db_session: AsyncSession) -> User:
     return user
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def test_location(db_session: AsyncSession) -> Location:
     location = Location(
         name=f"Test Location {_uuid.uuid4().hex[:6]}",
@@ -142,7 +120,7 @@ async def test_location(db_session: AsyncSession) -> Location:
     return location
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def test_service(db_session: AsyncSession) -> Service:
     from decimal import Decimal
     service = Service(
@@ -158,7 +136,7 @@ async def test_service(db_session: AsyncSession) -> Service:
     return service
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def test_staff_profile(db_session: AsyncSession, staff_user: User, test_location: Location) -> StaffProfile:
     profile = StaffProfile(
         user_id=staff_user.id,
@@ -172,7 +150,7 @@ async def test_staff_profile(db_session: AsyncSession, staff_user: User, test_lo
     return profile
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def manager_token(client: AsyncClient, manager_user: User) -> str:
     resp = await client.post("/api/v1/auth/login", json={
         "email": manager_user.email,
@@ -182,7 +160,7 @@ async def manager_token(client: AsyncClient, manager_user: User) -> str:
     return resp.json()["access_token"]
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def customer_token(client: AsyncClient, customer_user: User) -> str:
     resp = await client.post("/api/v1/auth/login", json={
         "email": customer_user.email,
@@ -192,7 +170,7 @@ async def customer_token(client: AsyncClient, customer_user: User) -> str:
     return resp.json()["access_token"]
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def staff_token(client: AsyncClient, staff_user: User) -> str:
     resp = await client.post("/api/v1/auth/login", json={
         "email": staff_user.email,

@@ -1,7 +1,7 @@
 # JWT token creation/verification and password hashing utilities
 import os
 from dotenv import load_dotenv
-load_dotenv('.env_3698610c-0a42-47f4-8734-fc3a8dd320bd', override=True)
+load_dotenv('.env_a6b2546857a5b043', override=True)
 
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -9,7 +9,7 @@ from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-SECRET_KEY = os.getenv("SECRET_KEY", "slotwise-super-secret-key-change-in-production-2024")
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 

@@ -24,7 +24,7 @@ services:
     ports:
       - "40119:40119"
     environment:
-      DATABASE_URL: postgresql+asyncpg://myuser:mypassword@db:5432/gen_6ea131cada
+      DATABASE_URL: postgresql+asyncpg://myuser:mypassword@localhost:5432/gen_319b511664
       SECRET_KEY: slotwise-super-secret-key-change-in-production-2024
       ALGORITHM: HS256
       ACCESS_TOKEN_EXPIRE_MINUTES: 30

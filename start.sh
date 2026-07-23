@@ -2,8 +2,8 @@
 # Start script for SlotWise FastAPI backend
 set -e
 
-# Hardcoded port — always use 40119
-PORT=40119
+# Default port (can be overridden by env)
+PORT=${PORT:-41553}
 
 export PYTHONUNBUFFERED=1
 
@@ -25,4 +25,4 @@ pip install -r requirements.txt -q
 
 # Start the server
 echo "Starting SlotWise on port $PORT..."
-exec uvicorn app.main:app --host 0.0.0.0 --port 40119 --reload
+exec uvicorn app.main:app --host 0.0.0.0 --port "$PORT" --reload

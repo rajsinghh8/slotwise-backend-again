@@ -1,7 +1,7 @@
 # Database engine, session factory, and get_db dependency for SlotWise
 import os
 from dotenv import load_dotenv
-load_dotenv('.env_3698610c-0a42-47f4-8734-fc3a8dd320bd', override=True)
+load_dotenv('.env_a6b2546857a5b043', override=True)
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase

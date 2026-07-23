@@ -1,7 +1,7 @@
 # Appointments router: booking, listing, status updates, cancellation
 import os
 from dotenv import load_dotenv
-load_dotenv('.env_3698610c-0a42-47f4-8734-fc3a8dd320bd', override=True)
+load_dotenv('.env_a6b2546857a5b043', override=True)
 
 import uuid
 from datetime import datetime, timedelta, timezone

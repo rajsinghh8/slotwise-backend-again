@@ -1,7 +1,7 @@
 # Pydantic v2 schemas for SlotWise request/response models
 import os
 from dotenv import load_dotenv
-load_dotenv('.env_3698610c-0a42-47f4-8734-fc3a8dd320bd', override=True)
+load_dotenv('.env_a6b2546857a5b043', override=True)
 
 import uuid
 from datetime import datetime, date, time
@@ -333,3 +333,16 @@ class PaginatedResponse(BaseModel):
     limit: int
     offset: int
     items: list
+
+
+# ── Numbers ───────────────────────────────────────────────────────────────────
+
+class NumberCreate(BaseModel):
+    value: int
+
+
+class NumberOut(OrmBase):
+    id: int
+    value: int
+    created_at: datetime
+

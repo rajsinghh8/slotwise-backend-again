@@ -1,7 +1,7 @@
 # SQLAlchemy ORM models for SlotWise appointment booking system
 import os
 from dotenv import load_dotenv
-load_dotenv('.env_3698610c-0a42-47f4-8734-fc3a8dd320bd', override=True)
+load_dotenv('.env_a6b2546857a5b043', override=True)
 
 import enum
 import uuid
@@ -242,3 +242,12 @@ class WaitlistEntry(Base):
     service: Mapped["Service"] = relationship("Service", back_populates="waitlist_entries")
     location: Mapped["Location"] = relationship("Location")
     staff_profile: Mapped[Optional["StaffProfile"]] = relationship("StaffProfile", back_populates="waitlist_entries")
+
+
+class NumberEntry(Base):
+    __tablename__ = "numbers"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    value: Mapped[int] = mapped_column(Integer, unique=True, nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+
